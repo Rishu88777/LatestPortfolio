@@ -42,3 +42,10 @@ it auto-detects Vite — no config needed.
 `src/Resume.pdf` is included. To link it from the page, import it at the top of
 `Portfolio.jsx` (`import resume from "./Resume.pdf";`) and point an anchor or
 button at `resume`.
+
+## Contact form
+
+The form posts to [FormSubmit](https://formsubmit.co) and is delivered to
+`rishushrivastava264@gmail.com` (see `CONTACT_EMAIL` in `Portfolio.jsx`).
+**One-time setup:** after deploying, submit the form once and click the
+"Activate Form" link FormSubmit emails you. Messages arrive after that.

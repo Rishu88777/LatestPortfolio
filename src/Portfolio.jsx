@@ -1,4 +1,17 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import {
+  motion,
+  MotionConfig,
+  useScroll,
+  useSpring,
+  useTransform,
+  useMotionValue,
+  AnimatePresence,
+} from "framer-motion";
+import profile from "./assets/profile.jpg";
+
+const CONTACT_EMAIL = "rishushrivastava264@gmail.com";
+const FORM_ENDPOINT = `https://formsubmit.co/ajax/${CONTACT_EMAIL}`;
 
 /*
   RISHU KR SHRIVASTAVA — Portfolio
@@ -83,7 +96,7 @@ const STYLES = `
 
 .rk-name{
   font-family:var(--mono);font-weight:800;
-  font-size:clamp(38px,8.4vw,104px);line-height:.94;letter-spacing:-.02em;
+  font-size:clamp(34px,6.2vw,84px);line-height:.94;letter-spacing:-.02em;
   color:var(--paper);text-transform:uppercase;
   opacity:0;transform:translateY(14px);
 }
@@ -191,7 +204,7 @@ const STYLES = `
 .rk-contact{max-width:1080px;margin:0 auto;padding:104px 22px;}
 .rk-contact .rk-eyebrow{color:var(--marigold-soft);}
 .rk-contact .rk-eyebrow .rule{background:#2c5642;}
-.rk-contact h2{font-family:var(--serif);font-weight:500;font-size:clamp(34px,6vw,72px);
+.rk-contact h2{display:block;font-family:var(--serif);font-weight:500;font-size:clamp(34px,6vw,72px);
   line-height:1.04;letter-spacing:-.02em;color:var(--paper);margin-bottom:8px;}
 .rk-contact h2 em{font-style:italic;color:var(--marigold);}
 .rk-contact .lead{font-family:var(--serif);font-size:18px;color:#bcd2c4;max-width:560px;line-height:1.6;margin-bottom:40px;}
@@ -204,6 +217,7 @@ const STYLES = `
 .rk-link .v{font-family:var(--serif);font-size:20px;color:var(--paper);margin-top:7px;
   display:flex;align-items:center;gap:9px;}
 .rk-link:hover .v{color:var(--marigold-soft);}
+.rk-link .v{word-break:break-all;font-size:clamp(15px,1.6vw,19px);}
 .rk-link .arr{font-family:var(--mono);transition:transform .25s ease;}
 .rk-link:hover .arr{transform:translate(3px,-3px);}
 
@@ -232,6 +246,124 @@ const STYLES = `
 .rk-client .logo{display:block;max-height:46px;max-width:170px;object-fit:contain;}
 .rk-client .role{font-family:var(--mono);font-size:11.5px;line-height:1.5;color:var(--ink-text-dim);margin-top:12px;}
 .rk-client .via{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--sage-dim);margin-top:14px;}
+
+
+/* ---------- motion layer ---------- */
+.rk-progress{position:fixed;top:0;left:0;right:0;height:3px;z-index:60;background:var(--marigold);
+  transform-origin:0 50%;box-shadow:0 0 12px rgba(231,161,48,.8);}
+.rk-glow{position:fixed;top:0;left:0;width:520px;height:520px;margin:-260px 0 0 -260px;border-radius:50%;
+  pointer-events:none;z-index:1;mix-blend-mode:soft-light;
+  background:radial-gradient(circle,rgba(231,161,48,.55),rgba(231,161,48,0) 62%);}
+.rk-cursor{position:fixed;top:0;left:0;width:34px;height:34px;margin:-17px 0 0 -17px;border:1px solid var(--marigold);
+  border-radius:50%;pointer-events:none;z-index:70;transition:width .25s,height .25s,margin .25s,background .25s;}
+.rk-cursor.big{width:64px;height:64px;margin:-32px 0 0 -32px;background:rgba(231,161,48,.18);}
+@media(hover:none){.rk-cursor,.rk-glow{display:none}}
+.rk-root a,.rk-root button{cursor:pointer}
+
+.rk-nav{display:flex;gap:20px;}
+.rk-nav button{background:none;border:none;color:var(--sage);font:inherit;letter-spacing:inherit;text-transform:inherit;
+  position:relative;padding:2px 0;transition:color .2s;}
+.rk-nav button:hover{color:var(--marigold);}
+.rk-nav button::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:1px;background:var(--marigold);
+  transform:scaleX(0);transform-origin:left;transition:transform .3s;}
+.rk-nav button:hover::after{transform:scaleX(1);}
+
+.rk-hero-grid{display:grid;grid-template-columns:1.35fr .8fr;gap:56px;align-items:center;}
+.rk-name .ch{display:inline-block;}
+
+/* ID badge */
+.rk-badge-wrap{perspective:1100px;justify-self:center;width:100%;max-width:340px;}
+.rk-badge{position:relative;transform-style:preserve-3d;background:var(--ink-2);border:1px solid var(--ink-line);
+  padding:14px 14px 18px;box-shadow:0 30px 80px rgba(0,0,0,.55),0 0 0 1px rgba(231,161,48,.15);}
+.rk-badge .lanyard{position:absolute;top:-34px;left:50%;width:46px;height:12px;margin-left:-23px;background:var(--marigold);
+  border-radius:3px;transform:translateZ(30px);}
+.rk-badge .lanyard::before{content:"";position:absolute;left:50%;bottom:100%;width:2px;height:60px;background:var(--marigold);opacity:.4;}
+.rk-photo{position:relative;overflow:hidden;aspect-ratio:4/4.6;background:#000;transform:translateZ(24px);}
+.rk-photo img{width:100%;height:100%;object-fit:cover;object-position:50% 25%;display:block;filter:saturate(1.05) contrast(1.04);}
+.rk-photo::after{content:"";position:absolute;inset:0;
+  background:repeating-linear-gradient(0deg,rgba(13,23,18,.0) 0 2px,rgba(13,23,18,.16) 2px 3px);pointer-events:none;}
+.rk-scan{position:absolute;left:0;right:0;height:70px;z-index:3;pointer-events:none;
+  background:linear-gradient(180deg,transparent,rgba(231,161,48,.38),transparent);
+  border-bottom:1px solid var(--marigold);animation:scan 3.6s ease-in-out infinite;}
+@keyframes scan{0%{top:-70px}100%{top:100%}}
+.rk-br{position:absolute;width:18px;height:18px;border:2px solid var(--marigold);z-index:4;}
+.rk-br.tl{top:8px;left:8px;border-right:0;border-bottom:0}.rk-br.tr{top:8px;right:8px;border-left:0;border-bottom:0}
+.rk-br.bl{bottom:8px;left:8px;border-right:0;border-top:0}.rk-br.brr{bottom:8px;right:8px;border-left:0;border-top:0}
+.rk-badge .meta{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--sage);
+  display:flex;justify-content:space-between;align-items:center;margin-top:14px;transform:translateZ(18px);}
+.rk-badge .meta b{color:var(--paper);font-size:12.5px;letter-spacing:.06em;}
+.rk-badge .meta .ok{color:#9FD3B0;display:flex;align-items:center;gap:6px;}
+.rk-chipwrap{position:absolute;z-index:5;}
+.rk-chip{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;padding:6px 10px;
+  background:var(--marigold);color:var(--ink);font-weight:700;box-shadow:0 10px 24px rgba(0,0,0,.4);white-space:nowrap;}
+.rk-chip.dark{background:var(--ink);color:var(--marigold);border:1px solid var(--marigold);}
+
+/* sections */
+.rk-svc-item{position:relative;}
+.rk-svc-item .glow-line{position:absolute;left:0;bottom:-1px;height:2px;width:100%;background:var(--marigold);
+  transform:scaleX(0);transform-origin:left;transition:transform .6s cubic-bezier(.2,.7,.2,1);}
+.rk-svc-item:hover .glow-line{transform:scaleX(1);}
+.rk-client{overflow:hidden;}
+.rk-client::before{content:"";position:absolute;inset:0;background:radial-gradient(260px circle at var(--mx,50%) var(--my,50%),rgba(231,161,48,.16),transparent 60%);
+  opacity:0;transition:opacity .3s;pointer-events:none;}
+.rk-client:hover::before{opacity:1;}
+
+.rk-photo-about{display:none}
+
+/* contact form */
+.rk-contact-grid{display:grid;grid-template-columns:1fr 1.15fr;gap:54px;align-items:start;}
+.rk-form{background:var(--ink);border:1px solid #2c5642;box-shadow:0 30px 70px rgba(0,0,0,.35);position:relative;overflow:hidden;}
+.rk-form-bar{display:flex;align-items:center;gap:8px;padding:11px 16px;border-bottom:1px solid var(--ink-line);
+  font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--sage);}
+.rk-form-bar i{width:9px;height:9px;border-radius:50%;background:var(--ink-line);display:inline-block;}
+.rk-form-bar i:first-child{background:var(--marigold);}
+.rk-form-bar span{margin-left:8px;}
+.rk-form-body{padding:22px 22px 24px;display:grid;gap:18px;}
+.rk-field{position:relative;}
+.rk-field label{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--sage-dim);margin-bottom:8px;transition:color .2s;}
+.rk-field:focus-within label{color:var(--marigold);}
+.rk-field input,.rk-field textarea{width:100%;background:transparent;border:none;border-bottom:1px solid var(--ink-line);
+  color:var(--paper);font-family:var(--mono);font-size:14px;padding:8px 0 10px;outline:none;resize:vertical;border-radius:0;}
+.rk-field textarea{min-height:110px;line-height:1.6;}
+.rk-field input::placeholder,.rk-field textarea::placeholder{color:#3d5646;}
+.rk-field .uline{position:absolute;left:0;bottom:0;height:2px;width:100%;background:var(--marigold);
+  transform:scaleX(0);transform-origin:left;transition:transform .35s cubic-bezier(.2,.7,.2,1);}
+.rk-field:focus-within .uline{transform:scaleX(1);}
+.rk-field .err{font-family:var(--mono);font-size:11px;color:#ff8a6b;margin-top:6px;}
+.rk-two{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.rk-intents{display:flex;flex-wrap:wrap;gap:8px;}
+.rk-intent{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;background:transparent;color:var(--sage);
+  border:1px solid var(--ink-line);padding:7px 12px;transition:all .2s;}
+.rk-intent:hover{border-color:var(--marigold);color:var(--paper);}
+.rk-intent.on{background:var(--marigold);border-color:var(--marigold);color:var(--ink);font-weight:700;}
+.rk-send{font-family:var(--mono);font-weight:700;font-size:13px;letter-spacing:.14em;text-transform:uppercase;
+  background:var(--marigold);color:var(--ink);border:none;padding:16px 22px;display:flex;align-items:center;
+  justify-content:space-between;gap:12px;position:relative;overflow:hidden;}
+.rk-send:disabled{opacity:.7;cursor:progress;}
+.rk-send::before{content:"";position:absolute;inset:0;background:var(--marigold-soft);transform:translateX(-101%);transition:transform .4s;}
+.rk-send:hover::before{transform:translateX(0);}
+.rk-send span{position:relative;}
+.rk-hp{position:absolute;left:-9999px;opacity:0;height:0;width:0;}
+.rk-resp{padding:34px 22px;font-family:var(--mono);color:var(--sage);}
+.rk-resp .code{font-size:clamp(34px,6vw,54px);font-weight:800;color:var(--marigold);line-height:1;}
+.rk-resp .code.bad{color:#ff8a6b;}
+.rk-resp pre{margin-top:18px;font-size:12.5px;line-height:1.8;color:#9bc1aa;white-space:pre-wrap;}
+.rk-resp button{margin-top:22px;background:none;border:1px solid var(--marigold);color:var(--marigold);
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;padding:10px 16px;}
+.rk-resp button:hover{background:var(--marigold);color:var(--ink);}
+.rk-spin{width:14px;height:14px;border:2px solid var(--ink);border-top-color:transparent;border-radius:50%;
+  display:inline-block;animation:spin .7s linear infinite;position:relative;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:900px){
+  .rk-hero-grid{grid-template-columns:1fr;gap:70px;}
+  .rk-badge-wrap{max-width:300px;justify-self:start;}
+  .rk-contact-grid{grid-template-columns:1fr;gap:40px;}
+  .rk-nav{display:none;}
+}
+@media(max-width:520px){.rk-two{grid-template-columns:1fr;}}
+@media(prefers-reduced-motion:reduce){.rk-scan{animation:none;display:none}}
 
 /* ---------- responsive ---------- */
 @media(max-width:760px){
@@ -314,26 +446,270 @@ function Counter({ to, suffix = "", prefix = "", reduced }) {
   );
 }
 
-function useReveal() {
-  const ref = useRef(null);
+const EASE = [0.2, 0.7, 0.2, 1];
+
+function Fade({ children, className = "", delay = 0, y = 30, as = "div" }) {
+  const C = motion[as];
+  return (
+    <C
+      className={className}
+      initial={{ opacity: 0, y }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.8, ease: EASE, delay }}
+    >
+      {children}
+    </C>
+  );
+}
+
+function ScrollProgress() {
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, { stiffness: 120, damping: 24, mass: 0.3 });
+  return <motion.div className="rk-progress" style={{ scaleX }} />;
+}
+
+function CursorFx() {
+  const x = useMotionValue(-300);
+  const y = useMotionValue(-300);
+  const gx = useSpring(x, { stiffness: 70, damping: 20 });
+  const gy = useSpring(y, { stiffness: 70, damping: 20 });
+  const rx = useSpring(x, { stiffness: 380, damping: 32 });
+  const ry = useSpring(y, { stiffness: 380, damping: 32 });
+  const [big, setBig] = useState(false);
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) {
-            e.target.classList.add("vis");
-            obs.unobserve(e.target);
-          }
-        });
-      },
-      { threshold: 0.15 }
-    );
-    el.querySelectorAll(".fade").forEach((n) => obs.observe(n));
-    return () => obs.disconnect();
-  }, []);
-  return ref;
+    const mv = (e) => {
+      x.set(e.clientX);
+      y.set(e.clientY);
+      setBig(!!e.target.closest?.("a,button,input,textarea,.rk-intent"));
+    };
+    window.addEventListener("mousemove", mv);
+    return () => window.removeEventListener("mousemove", mv);
+  }, [x, y]);
+  return (
+    <>
+      <motion.div className="rk-glow" style={{ x: gx, y: gy }} />
+      <motion.div className={`rk-cursor ${big ? "big" : ""}`} style={{ x: rx, y: ry }} />
+    </>
+  );
+}
+
+// letters drop in one by one, then briefly scramble on hover
+const GLYPHS = "01<>/{}[]#$%";
+function Scramble({ text }) {
+  const [out, setOut] = useState(text);
+  const run = () => {
+    let i = 0;
+    const id = setInterval(() => {
+      setOut(
+        text
+          .split("")
+          .map((c, k) => (c === " " || k < i ? c : GLYPHS[Math.floor(Math.random() * GLYPHS.length)]))
+          .join("")
+      );
+      i += 1;
+      if (i > text.length) {
+        clearInterval(id);
+        setOut(text);
+      }
+    }, 38);
+  };
+  return <span onMouseEnter={run}>{out}</span>;
+}
+
+function IdBadge({ show }) {
+  const rx = useMotionValue(0);
+  const ry = useMotionValue(0);
+  const sx = useSpring(rx, { stiffness: 140, damping: 16 });
+  const sy = useSpring(ry, { stiffness: 140, damping: 16 });
+  const onMove = (e) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    ry.set(((e.clientX - r.left) / r.width - 0.5) * 22);
+    rx.set(-((e.clientY - r.top) / r.height - 0.5) * 22);
+  };
+  const reset = () => {
+    rx.set(0);
+    ry.set(0);
+  };
+  return (
+    <motion.div
+      className="rk-badge-wrap"
+      onMouseMove={onMove}
+      onMouseLeave={reset}
+      initial={{ opacity: 0, y: 60, rotate: -4 }}
+      animate={show ? { opacity: 1, y: 0, rotate: 0 } : {}}
+      transition={{ type: "spring", stiffness: 60, damping: 12, delay: 0.1 }}
+    >
+      <motion.div className="rk-badge" style={{ rotateX: sx, rotateY: sy }}>
+        <span className="lanyard" />
+        <div className="rk-chipwrap" style={{ top: 40, right: -26, transform: "translateZ(70px)" }}>
+          <motion.span
+            className="rk-chip"
+            animate={{ y: [0, -8, 0] }}
+            transition={{ duration: 3.4, repeat: Infinity, ease: "easeInOut" }}
+          >
+            Spring Boot
+          </motion.span>
+        </div>
+        <div className="rk-chipwrap" style={{ bottom: 92, left: -30, transform: "translateZ(80px)" }}>
+          <motion.span
+            className="rk-chip dark"
+            animate={{ y: [0, 9, 0] }}
+            transition={{ duration: 4.1, repeat: Infinity, ease: "easeInOut" }}
+          >
+            99.9% uptime
+          </motion.span>
+        </div>
+        <div className="rk-photo">
+          <span className="rk-br tl" /><span className="rk-br tr" /><span className="rk-br bl" /><span className="rk-br brr" />
+          <span className="rk-scan" />
+          <img src={profile} alt="Rishu Shrivastava" />
+        </div>
+        <div className="meta">
+          <span><b>R. Shrivastava</b><br />SWE · PeLocal</span>
+          <span className="ok"><span className="rk-dot" style={{ margin: 0 }} />ACCESS OK</span>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+function Magnetic({ children }) {
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const sx = useSpring(x, { stiffness: 200, damping: 14 });
+  const sy = useSpring(y, { stiffness: 200, damping: 14 });
+  return (
+    <motion.div
+      style={{ x: sx, y: sy, display: "inline-block" }}
+      onMouseMove={(e) => {
+        const r = e.currentTarget.getBoundingClientRect();
+        x.set((e.clientX - r.left - r.width / 2) * 0.3);
+        y.set((e.clientY - r.top - r.height / 2) * 0.3);
+      }}
+      onMouseLeave={() => {
+        x.set(0);
+        y.set(0);
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+const INTENTS = ["hire", "freelance", "collab", "just-hi"];
+const EMPTY = { name: "", email: "", intent: "hire", message: "", _honey: "" };
+
+function ContactForm() {
+  const [f, setF] = useState(EMPTY);
+  const [errs, setErrs] = useState({});
+  const [status, setStatus] = useState("idle"); // idle | sending | ok | fail
+  const set = (k) => (e) => setF((p) => ({ ...p, [k]: e.target.value }));
+
+  const submit = async (e) => {
+    e.preventDefault();
+    const er = {};
+    if (f.name.trim().length < 2) er.name = "name is required";
+    if (!/^\S+@\S+\.\S+$/.test(f.email)) er.email = "valid email is required";
+    if (f.message.trim().length < 10) er.message = "tell me a bit more (10+ chars)";
+    setErrs(er);
+    if (Object.keys(er).length) return;
+    if (f._honey) return setStatus("ok"); // bot: pretend success
+    setStatus("sending");
+    try {
+      const res = await fetch(FORM_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          name: f.name,
+          email: f.email,
+          intent: f.intent,
+          message: f.message,
+          _subject: `Portfolio: ${f.intent} — ${f.name}`,
+          _replyto: f.email,
+          _template: "table",
+          _captcha: "false",
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.success === "false") throw new Error("failed");
+      setStatus("ok");
+    } catch {
+      setStatus("fail");
+    }
+  };
+
+  const reset = () => {
+    setF(EMPTY);
+    setErrs({});
+    setStatus("idle");
+  };
+
+  const mailto = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(`Portfolio: ${f.intent}`)}&body=${encodeURIComponent(f.message)}`;
+
+  return (
+    <div className="rk-form">
+      <div className="rk-form-bar"><i /><i /><i /><span>POST /rishu/contact</span></div>
+      <AnimatePresence mode="wait">
+        {status === "ok" || status === "fail" ? (
+          <motion.div
+            key="resp"
+            className="rk-resp"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+          >
+            <div className={`code ${status === "fail" ? "bad" : ""}`}>{status === "ok" ? "201 Created" : "503 Unavailable"}</div>
+            <pre>
+              {status === "ok"
+                ? `{\n  "delivered": true,\n  "to": "rishu",\n  "eta": "within 24h"\n}\nThanks ${f.name.split(" ")[0]} — your message is in my inbox.`
+                : `{\n  "delivered": false\n}\nCouldn't reach the mail service. Try again, or send it directly: `}
+              {status === "fail" && <a href={mailto} style={{ color: "var(--marigold)" }}>open email app ↗</a>}
+            </pre>
+            <button onClick={reset}>{status === "ok" ? "send another" : "try again"}</button>
+          </motion.div>
+        ) : (
+          <motion.form key="form" className="rk-form-body" onSubmit={submit} noValidate exit={{ opacity: 0 }}>
+            <input className="rk-hp" tabIndex={-1} autoComplete="off" value={f._honey} onChange={set("_honey")} aria-hidden="true" />
+            <div className="rk-two">
+              <div className="rk-field">
+                <label htmlFor="c-name">name</label>
+                <input id="c-name" value={f.name} onChange={set("name")} placeholder="Ada Lovelace" autoComplete="name" />
+                <span className="uline" />
+                {errs.name && <div className="err">! {errs.name}</div>}
+              </div>
+              <div className="rk-field">
+                <label htmlFor="c-email">email</label>
+                <input id="c-email" type="email" value={f.email} onChange={set("email")} placeholder="ada@company.com" autoComplete="email" />
+                <span className="uline" />
+                {errs.email && <div className="err">! {errs.email}</div>}
+              </div>
+            </div>
+            <div className="rk-field">
+              <label>intent</label>
+              <div className="rk-intents">
+                {INTENTS.map((i) => (
+                  <button type="button" key={i} className={`rk-intent ${f.intent === i ? "on" : ""}`} onClick={() => setF((p) => ({ ...p, intent: i }))}>
+                    {i}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="rk-field">
+              <label htmlFor="c-msg">message</label>
+              <textarea id="c-msg" value={f.message} onChange={set("message")} placeholder="Tell me about the system you want to build…" />
+              <span className="uline" />
+              {errs.message && <div className="err">! {errs.message}</div>}
+            </div>
+            <motion.button className="rk-send" type="submit" disabled={status === "sending"} whileTap={{ scale: 0.97 }}>
+              <span>{status === "sending" ? "sending request…" : "send request"}</span>
+              <span>{status === "sending" ? <i className="rk-spin" /> : "→"}</span>
+            </motion.button>
+          </motion.form>
+        )}
+      </AnimatePresence>
+    </div>
+  );
 }
 
 export default function Portfolio() {
@@ -341,7 +717,6 @@ export default function Portfolio() {
   const [lines, setLines] = useState(reduced ? BOOT : []);
   const [phase, setPhase] = useState(reduced ? 2 : 0); // 0 boot, 1 name, 2 done
   const [clock, setClock] = useState("");
-  const root = useReveal();
 
   // boot sequence
   useEffect(() => {
@@ -377,12 +752,20 @@ export default function Portfolio() {
   const nameAnim = phase >= 1 ? "reveal-in" : "";
 
   return (
-    <div className="rk-root" ref={root}>
+    <MotionConfig reducedMotion="user">
+    <div className="rk-root">
       <style>{STYLES}</style>
+      <ScrollProgress />
+      <CursorFx />
 
       {/* status bar */}
       <div className="rk-topbar">
         <span className="brand">RISHU.SYS</span>
+        <span className="rk-nav">
+          {[["about", "readme"], ["work", "services"], ["stack", "stack"], ["log", "log"], ["contact", "contact"]].map(([id, l]) => (
+            <button key={id} onClick={() => nav(id)}>{l}</button>
+          ))}
+        </span>
         <span className="right">
           <span className="clock">{clock}</span>
           <span><span className="rk-dot" />OPEN TO WORK</span>
@@ -392,6 +775,8 @@ export default function Portfolio() {
       {/* hero console */}
       <header className="rk-hero">
         <div className="rk-hero-inner">
+          <div className="rk-hero-grid">
+          <div>
           <div className="rk-term" aria-hidden="true">
             {lines.map((l, i) => (
               <div className="ln" key={i}>
@@ -404,11 +789,14 @@ export default function Portfolio() {
           </div>
 
           <h1 className={`rk-name ${nameAnim}`} style={phase >= 1 ? { animationDelay: "0s" } : undefined}>
-            Rishu<br />Shrivastav<span className="am">a</span>
+            <Scramble text="Rishu" /><br /><Scramble text="Shrivastava" />
           </h1>
           <p className={`rk-role ${phase >= 2 ? "reveal-in" : ""}`} style={{ animationDelay: "0.15s" }}>
             Software Engineer at PeLocal Fintech, building scalable backend services that quietly hold up production for ten lakh users.
           </p>
+          </div>
+          <IdBadge show={phase >= 1} />
+          </div>
 
           <div className="rk-metrics" style={phase >= 2 ? { animation: "rise .7s cubic-bezier(.2,.7,.2,1) .3s forwards" } : undefined}>
             <div className="rk-metric"><div className="v"><Counter to={10} suffix="L+" reduced={reduced} /></div><div className="k">Users served</div></div>
@@ -426,13 +814,13 @@ export default function Portfolio() {
       {/* about */}
       <section className="rk-sec" id="about">
         <div className="rk-eyebrow"><span className="num">01</span> README <span className="rule" /></div>
-        <div className="rk-about fade">
+        <Fade className="rk-about">
           <h2>
             I work on the half of the product nobody sees — the <em>APIs, schemas and payment flows</em> that have to be right every single time.
           </h2>
           <div>
             <p className="marg">
-              A year-plus into fintech at PeLocal, shipping production Spring Boot services across insurance and messaging
+              Around 2 years of overall experience, now in fintech at PeLocal, shipping production Spring Boot services across insurance and messaging
               platforms. I care about clean query design, sane architecture, and systems that stay up when traffic doesn't.
             </p>
             <div className="rk-sidecard" style={{ marginTop: 24 }}>
@@ -442,13 +830,13 @@ export default function Portfolio() {
               <div className="row"><span className="lbl">Status</span><span className="val live">● Available</span></div>
             </div>
           </div>
-        </div>
+        </Fade>
       </section>
 
       {/* clients */}
       <section className="rk-sec" id="clients">
         <div className="rk-eyebrow"><span className="num">02</span> Deployed for <span className="rule" /></div>
-        <div className="rk-marquee fade">
+        <Fade className="rk-marquee">
           <div className="rk-track">
             {Array.from({ length: 2 }).flatMap((_, k) =>
               ["PNB MetLife", "DMRC", "Hertz Plantation", "1IT Solution", "OND Techsol", "Patna Metro"].map((c) => (
@@ -456,8 +844,8 @@ export default function Portfolio() {
               ))
             )}
           </div>
-        </div>
-        <div className="rk-clients fade">
+        </Fade>
+        <Fade className="rk-clients">
           {/*
             To show a real logo: set `logo` to an imported asset or a URL you have rights to use,
             e.g.  import hertz from "./assets/hertz.png";  then  logo: hertz
@@ -471,16 +859,25 @@ export default function Portfolio() {
             { name: "1IT Solution", logo: "", cat: "Freelance", ent: false, role: "Web & backend development.", via: "Independent" },
             { name: "OND Techsol", logo: "", cat: "Freelance", ent: false, role: "Web & backend development.", via: "Independent" },
           ].map((c) => (
-            <div className="rk-client" key={c.name}>
+            <motion.div
+              className="rk-client"
+              key={c.name}
+              whileHover={{ y: -4 }}
+              onMouseMove={(e) => {
+                const r = e.currentTarget.getBoundingClientRect();
+                e.currentTarget.style.setProperty("--mx", `${e.clientX - r.left}px`);
+                e.currentTarget.style.setProperty("--my", `${e.clientY - r.top}px`);
+              }}
+            >
               <div className={`cat ${c.ent ? "ent" : ""}`}><span className="d" /> {c.cat}</div>
               {c.logo
                 ? <img className="logo" src={c.logo} alt={c.name} />
                 : <div className="wm">{c.name}</div>}
               <div className="role">{c.role}</div>
               <div className="via">{c.via}</div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </Fade>
       </section>
 
       {/* services */}
@@ -488,7 +885,7 @@ export default function Portfolio() {
         <div className="rk-eyebrow"><span className="num">03</span> Services in production <span className="rule" /></div>
         <div className="rk-svc">
           {/* svc 1 */}
-          <div className="rk-svc-item fade">
+          <Fade className="rk-svc-item">
             <div className="rk-svc-meta">
               <span className="method">GET /portal</span>
               <div className="badge"><span className="d" /> Production</div>
@@ -513,10 +910,11 @@ export default function Portfolio() {
                 ))}
               </div>
             </div>
-          </div>
+            <span className="glow-line" />
+          </Fade>
 
           {/* svc 2 */}
-          <div className="rk-svc-item fade">
+          <Fade className="rk-svc-item">
             <div className="rk-svc-meta">
               <span className="method">GET /whatsapp</span>
               <div className="badge"><span className="d" /> Production</div>
@@ -540,10 +938,11 @@ export default function Portfolio() {
                 ))}
               </div>
             </div>
-          </div>
+            <span className="glow-line" />
+          </Fade>
 
           {/* svc 3 */}
-          <div className="rk-svc-item fade">
+          <Fade className="rk-svc-item">
             <div className="rk-svc-meta">
               <span className="method">POST /tickets</span>
               <div className="badge"><span className="d" /> Shipped</div>
@@ -567,7 +966,8 @@ export default function Portfolio() {
                 ))}
               </div>
             </div>
-          </div>
+            <span className="glow-line" />
+          </Fade>
         </div>
       </section>
 
@@ -575,7 +975,7 @@ export default function Portfolio() {
       <div className="rk-stack-wrap">
         <section className="rk-stack" id="stack">
           <div className="rk-eyebrow"><span className="num">04</span> Stack manifest <span className="rule" /></div>
-          <div className="rk-manifest fade">
+          <Fade className="rk-manifest">
             {[
               { grp: "languages", deps: [["Java", "17"], ["C", ""], ["SQL", ""]] },
               { grp: "frameworks", deps: [["Spring Boot", ""], ["Hibernate", ""]] },
@@ -594,7 +994,7 @@ export default function Portfolio() {
                 </div>
               </div>
             ))}
-          </div>
+          </Fade>
         </section>
       </div>
 
@@ -608,14 +1008,14 @@ export default function Portfolio() {
             { ts: "2021 — 2025", h: "B.Tech, Computer Science & Engineering", org: "IILM College of Engineering & Technology", p: "Foundations in data structures, systems and software engineering." },
             { ts: "2023 — 2025", h: "Certifications", org: "Claude Code in Action · Anthropic · Java + DSA · Apna College · AWS & React · Udemy", p: "Continued building depth in core Java, problem-solving, AI-assisted development and cloud / frontend fundamentals." },
           ].map((e, i) => (
-            <div className="rk-logline fade" key={i}>
+            <Fade className="rk-logline" key={i}>
               <div className="ts">{e.now ? <><span className="now">{e.ts}</span></> : e.ts}</div>
               <div>
                 <h4>{e.h}</h4>
                 <div className="org">{e.org}</div>
                 <p>{e.p}</p>
               </div>
-            </div>
+            </Fade>
           ))}
         </div>
       </section>
@@ -624,34 +1024,38 @@ export default function Portfolio() {
       <div className="rk-contact-wrap" id="contact">
         <section className="rk-contact">
           <div className="rk-eyebrow"><span className="num">06</span> Open a connection <span className="rule" /></div>
-          <h2 className="fade">Let's build the <em>backend</em>.</h2>
-          <p className="lead fade">
-            Open to backend and full-stack roles. If you've got a system that needs to stay up under load, I'd like to hear about it.
-          </p>
-          <div className="rk-req fade">
-            <div><span className="m">POST</span> /rishu/contact</div>
-            <div>{`{ "intent": "hire", "role": "java-backend", "response": "within-24h" }`}</div>
-          </div>
-          <div className="rk-links fade">
-            <a className="rk-link" href="mailto:rishushrivastava264@gmail.com">
-              <div className="k">Email</div><div className="v">rishushrivastava264@gmail.com <span className="arr">↗</span></div>
-            </a>
-            <a className="rk-link" href="tel:+918877709208">
-              <div className="k">Phone</div><div className="v">+91 88777 09208 <span className="arr">↗</span></div>
-            </a>
-            <a className="rk-link" href="https://www.linkedin.com/in/rishu88777/" target="_blank" rel="noreferrer">
-              <div className="k">LinkedIn</div><div className="v">/in/rishu88777 <span className="arr">↗</span></div>
-            </a>
-            <a className="rk-link" href="https://github.com/Rishu88777" target="_blank" rel="noreferrer">
-              <div className="k">GitHub</div><div className="v">/Rishu88777 <span className="arr">↗</span></div>
-            </a>
+          <div className="rk-contact-grid">
+            <div>
+              <Fade as="h2">Let's build the <em>backend</em>.</Fade>
+              <Fade as="p" className="lead" delay={0.1}>
+                Open to backend and full-stack roles. If you've got a system that needs to stay up under load, fill in the
+                request — it lands straight in my inbox.
+              </Fade>
+              <Fade className="rk-links" delay={0.2}>
+                {[
+                  ["Email", CONTACT_EMAIL, `mailto:${CONTACT_EMAIL}`],
+                  ["Phone", "+91 88777 09208", "tel:+918877709208"],
+                  ["LinkedIn", "/in/rishu88777", "https://www.linkedin.com/in/rishu88777/"],
+                  ["GitHub", "/Rishu88777", "https://github.com/Rishu88777"],
+                ].map(([k, v, href]) => (
+                  <a className="rk-link" key={k} href={href} {...(href.startsWith("http") ? { target: "_blank", rel: "noreferrer" } : {})}>
+                    <div className="k">{k}</div>
+                    <div className="v">{v} <span className="arr">↗</span></div>
+                  </a>
+                ))}
+              </Fade>
+            </div>
+            <Fade delay={0.15}>
+              <ContactForm />
+            </Fade>
           </div>
           <div className="rk-foot">
             <span>© 2026 Rishu Shrivastava</span>
-            <span>Built with React · Status: ONLINE</span>
+            <span>Built with React + Framer Motion · Status: ONLINE</span>
           </div>
         </section>
       </div>
     </div>
+    </MotionConfig>
   );
 }
