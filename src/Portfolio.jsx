@@ -820,7 +820,7 @@ export default function Portfolio() {
           </h2>
           <div>
             <p className="marg">
-              A year-plus into fintech at PeLocal, shipping production Spring Boot services across insurance and messaging
+              Around 2 years of overall experience, now in fintech at PeLocal, shipping production Spring Boot services across insurance and messaging
               platforms. I care about clean query design, sane architecture, and systems that stay up when traffic doesn't.
             </p>
             <div className="rk-sidecard" style={{ marginTop: 24 }}>
